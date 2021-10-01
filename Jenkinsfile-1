@@ -33,22 +33,6 @@ pipeline {
                 sh 'cd src/ ; java App' 
             }
         }
-		
-	stage("build & SonarQube analysis") {
-            steps {
-              withSonarQubeEnv('sq1') {
-                sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
-              }
-            }
-        }
-		
-        stage("Quality Gate") {
-            steps {
-              timeout(time: 1, unit: 'HOURS') {
-                waitForQualityGate abortPipeline: true
-              }
-	   }
-	}
     }
 
 }
