@@ -1,6 +1,9 @@
 pipeline {
 
     agent { label 'slave' }
+    tools{
+        maven 'maven'
+    }
 
     stages {
 
@@ -31,11 +34,10 @@ pipeline {
             }
         }
 		
-		stage("build & SonarQube analysis") {
-            agent any
+	stage("build & SonarQube analysis") {
             steps {
               withSonarQubeEnv('sq1') {
-                sh './mvnw clean org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.0.2155:sonar'
+                sh 'mvn clean package sonar:sonar'
               }
             }
         }
@@ -45,8 +47,8 @@ pipeline {
               timeout(time: 1, unit: 'HOURS') {
                 waitForQualityGate abortPipeline: true
               }
-			}
-		}
+	   }
+	}
     }
 
 }
