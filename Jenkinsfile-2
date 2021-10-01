@@ -1,6 +1,7 @@
 pipeline {
 
     agent { label 'slave' }
+
     stages {
 
         stage('Clone sources') {
@@ -29,19 +30,23 @@ pipeline {
                 sh 'cd src/ ; java App' 
             }
         }
-	stage('SonarQube analysis') {
-	     steps{
-		withSonarQubeEnv() {
-		sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.6.0.1398:sonar'
-	    }
-	  }
-	}
-        stage("Quality Gate") {
+		
+		stage("build & SonarQube analysis") {
+            agent any
             steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
-                }
+              withSonarQubeEnv('sq1') {
+				sh "${scannerHome}/bin/sonar-scanner"
+              }
             }
         }
+		
+        stage("Quality Gate") {
+            steps {
+              timeout(time: 1, unit: 'HOURS') {
+                waitForQualityGate abortPipeline: true
+              }
+			}
+		}
     }
+
 }
